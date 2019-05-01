@@ -2,11 +2,11 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class CalculatorTest {
+public class LibrarymanagerTest {
 
 	@Test
 	public void testAdd() {
-		Calculator lib = new Calculator();
+		Librarymanager lib = new Librarymanager();
 		double result = lib.add(10, 50);
 		assertEquals(60, result, 0);
 		

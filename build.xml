@@ -3,9 +3,9 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="LibraryManager">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="LibraryManager"
+              	xmlns:jacoco="antlib:org.jacoco.ant">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="../../eclipse/java-oxygen/eclipse/"/>
     <property name="junit.output.dir" value="junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.8"/>
@@ -13,6 +13,8 @@
     <path id="JUnit 4.libraryclasspath">
         <pathelement location="../../.p2/pool/plugins/org.junit_4.12.0.v201504281640/junit.jar"/>
         <pathelement location="../../.p2/pool/plugins/org.hamcrest.core_1.3.0.v201303031735.jar"/>
+    	<fileset dir="${ant.home}/lib" includes="*.jar" />
+    	<fileset dir="${ant.home}/lib/junit" includes="*.jar" />
     </path>
     <path id="LibraryManager.classpath">
         <pathelement location="bin"/>
@@ -41,27 +43,34 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
-    </target>
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
-    </target>
-    <target name="CalculatorTest">
+    <target name="LibrarymanagerTest">
         <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="CalculatorTest" todir="${junit.output.dir}"/>
-            <jvmarg line="-ea"/>
-            <classpath refid="LibraryManager.classpath"/>
-        </junit>
+    	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    		<classpath path="../jacocoant.jar"/>
+		</taskdef>
+    	<jacoco:coverage>
+	        <junit fork="yes" printsummary="withOutAndErr">
+	            <formatter type="xml"/>
+	            <test name="LibrarymanagerTest" todir="${junit.output.dir}"/>
+	            <jvmarg line="-ea"/>
+	            <classpath refid="LibraryManager.classpath"/>
+	        </junit>
+		</jacoco:coverage>
+    	<jacoco:report>
+    		<executiondata>
+    			<file file="jacoco.exec"/>
+    		</executiondata>
+    		
+    		<structure name="java coverage">
+    			<classfiles>
+    				<fileset dir="bin"/>
+    			</classfiles>
+    				<sourcefiles encoding="UTF-8">
+    					<fileset dir="src"/>
+    				</sourcefiles>
+    		</structure>
+    		<html destdir="${junit.output.dir}/coverage-report"/>
+    	</jacoco:report>
     </target>
     <target name="junitreport">
         <junitreport todir="${junit.output.dir}">
