@@ -1,5 +1,5 @@
 
-public class Librarymanager {
+public class Calculator {
 
 	static public void main() {
 		System.out.println("Hello");
